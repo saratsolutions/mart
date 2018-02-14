@@ -1,0 +1,57 @@
+package com.mart.dao;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.stereotype.Repository;
+
+import com.mart.model.Item;
+
+@Repository
+public class ItemDao {
+	private static final Logger log = Logger.getLogger(ItemDao.class);
+
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
+	
+	private static String query_add_item = "insert into t_items(C_ITEMNAME,C_BRAND,C_ITEM_PIC) values(?,?,?)";
+
+	public Item insertOrUpdate(final Item item) {
+		Item result = null;
+		log.info("IN ITEM DAO");
+		log.info("item.getItemName():::"+item.getItemName());
+		log.info("item.getItemBrand:::"+item.getItemBrand());
+			try {
+				
+				int i = jdbcTemplate.update(query_add_item,
+						new PreparedStatementSetter() {
+
+							@Override
+							public void setValues(PreparedStatement ps)
+									throws SQLException {
+								int index = 0;
+								ps.setString(++index, item.getItemName());
+								ps.setString(++index, item.getItemBrand());
+								ps.setString(++index, item.getItemImage());
+							}
+
+						});
+				
+			} catch (Exception e) {
+				result = new Item();
+				//result.setStatus(false);
+				e.printStackTrace();
+				throw new RuntimeException();
+			}
+
+		
+		return result;
+	}
+
+	
+}
